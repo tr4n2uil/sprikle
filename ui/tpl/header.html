@@ -1,0 +1,41 @@
+<div style="border-bottom: solid 1px #ccc; background-color: #eee; margin-top: -1em; padding: 1em 0 0.5em; position: fixed; top:0; left:0; right:0;">
+	<div class="body row">
+		<div class="col-xs-10 no-padding">
+			<div class="h1 bold" ng-hide="onEdit" ng-click="onEdit=1">{{book.name}}</div>
+			<div ng-show="onEdit" style="padding: 1.1em 0 0.6em;">
+				<form ng-submit="DB.save( 'books', book ) && refresh()">
+					<input type="text" ng-model="book.name" class="form-control inline-block"/>
+					<button class="btn btn-success">Save</button>
+					<button class="btn btn-default" type="button" ng-click="onEdit=0">Cancel</button>
+				</form>
+			</div>
+			<!--<div class="h4">Easy Notes</div>-->
+		</div>
+		<div class="col-xs-1 no-padding">
+			<div class="pull-right dropdown">
+				<a data-toggle="dropdown" class="dropdown-toggle pointer inline-block" style="font-size: 1.5em; padding: 0.75em 0 0 0.5em; color: #bbb;">
+					<span class="glyphicon glyphicon-cog"></span>
+					<!--<div class="col-md-1 no-padding"><span class="caret"></span></div>-->
+				</a>
+				<ul class="dropdown-menu">
+					<li><a ng-click="newBook()">New Book</a></li>
+					<li><a ng-click="deleteBook(book)">Delete Book</a></li>
+					<li class="divider"></li>
+					<li><a ng-click="export()">Export Data</a></li>
+					<li><a onclick="$('#upload-file').click()">Import Data</a><input id="upload-file" style="display: none;" type="file" ng-model="uploadfile" ng-change="import()"></li>
+				</ul>
+			</div>
+		</div>
+		<div class="col-xs-1 no-padding">
+			<div class="pull-right dropdown">
+				<a data-toggle="dropdown" class="dropdown-toggle pointer inline-block" style="font-size: 1.5em; padding: 0.75em 0 0 0.5em; color: #858585;">
+					<span class="glyphicon glyphicon-align-justify"></span>
+					<!--<div class="col-md-1 no-padding"><span class="caret"></span></div>-->
+				</a>
+				<ul class="dropdown-menu">
+					<li ng-repeat="b in books"><a ng-href="#/book/{{b.id}}/">{{b.name}}</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>

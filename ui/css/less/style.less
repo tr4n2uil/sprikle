@@ -1,0 +1,102 @@
+/**
+ *	Style LESS file
+ *
+ *	Vibhaj Rajan <vibhaj8@gmail.com>
+ *
+ *	Licensed under MIT License 
+ *	http://www.opensource.org/licenses/mit-license.php
+ *
+**/
+
+@import "responsive.less";
+@import "utils.less";
+
+@base-wide: 50%;
+@base-divider: 40;
+@base-partition: 30%;
+
+.auto-text();
+.scroll-bar();
+
+body {
+  	font-family: 'Proxima Nova', helvetica, arial, sans-serif;
+  	margin: 0;
+  	padding: 0;
+}
+
+a {
+  	color: #00B7FF;
+  	cursor: pointer;
+}
+
+.loading {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(255,255,255, 0.5);
+}
+
+.loading>img {
+	margin: 22% auto 0;
+	display: block;
+}
+
+.rounded {
+	.circle(1em);
+}
+
+.dim {
+	color: #999 !important;
+}
+
+.round {
+	.border-radius(17px);
+}
+
+.no-link {
+	color: #333;
+}
+
+.h1 {
+	font-size: 2em;
+	margin: 0.5em 0 0.25em;
+}
+
+.h2 {
+	font-size: 1.5em;
+	margin: 0.35em 0 0.15em;
+}
+
+.h3 {
+	font-size: 1.3em;
+	margin: 0.25em 0 0.05em;
+}
+
+.h4 {
+	font-size: 1.1em;
+}
+
+.form-control {
+	height: initial;
+	font-size: inherit;
+	width: inherit;
+}
+
+.dropdown-menu {
+	font-size: inherit;
+	min-width: 10em;
+}
+
+.dropdown-menu>li>a {
+	padding: 0.3em 1.5em;
+}
+
+.dropdown-menu .divider {
+	margin: 0.5em 0;
+}
+
+.full {
+	width: 100%;
+}
