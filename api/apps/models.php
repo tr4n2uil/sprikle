@@ -15,12 +15,28 @@
 	// map model
 	class Map extends Model {
 		var $id;
-		var $name;
+		var $key;
 		var $value;
 
 		static $_table = 'data_map';
-		static $_pk = 'name';
+		static $_pk = 'key';
 		static $_auth = 'SessionAuth';
+
+		// rest objects process
+		public function obj_process($data){
+			if(!$data) return $data;
+
+			$value = json_decode($data['value'], true);
+			if(isset($value['objects'])){
+				$extra = array();
+				foreach( $value['objects'] as $obj ){
+					$extra[$obj] = self::obj_get($obj);
+				}
+				$data['extra'] = $extra;
+			}
+			
+			return $data;
+		}
 	}
 	
 ?>

@@ -24,7 +24,10 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 
 	.filter('reverse', function() {
 		return function(items) {
-			return items.slice().reverse();
+			if(items){
+				return items.slice().reverse();	
+			}
+			return items;
 		};
 	})
 
@@ -47,15 +50,16 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 
 			$scope.newBook = function(){
 				var book = { name: 'Untitled Notes' };
-				DB.save( 'books', book );
-				console.log( $scope.book );
-				$location.path( '/book/' + book.id );
+				DB.save( 'books', book, false, function(){
+					$location.path( '/book/' + book.uuid );
+				} );
 			}
 
 			$scope.deleteBook = function( book ){
-				DB.drop( 'book.'+ book.id +'.notes' );
-				DB.remove( 'books', book );
-				$location.path('/');
+				DB.drop( 'book.'+ book.uuid +'.notes' );
+				DB.remove( 'books', book, function(){
+					$location.path('/');
+				} );
 			}
 
 			$scope.export = function(){
@@ -81,14 +85,24 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 
 	.controller('book', ['$scope', 'DB', '$routeParams', 
 		function($scope, DB, $routeParams) {
-			$scope.book = DB.get( $routeParams.id || 'easy-notes' );
-			if( !$scope.book ){
-				$scope.book = { name: 'Easy Notes' };
-				DB.save( 'books', $scope.book, 'easy-notes' );
-			}
+			DB.get( $routeParams.id || 'easy-notes', false, function(book){
+				$scope.book = book;
+				if( !$scope.book ){
+					$scope.book = { name: 'Easy Notes' };
+					DB.save( 'books', $scope.book, 'easy-notes' );
+				}
 
-			$scope.books = DB.query( 'books' );
-			$scope.notes = DB.query( 'book.'+ $scope.book.id +'.notes' );
+				DB.query( 'book.'+ $scope.book.uuid +'.notes', function(notes){
+					console.log('Retrieving Notes: ', notes);
+					$scope.notes = notes;
+				});
+			} );
+			
+			DB.query( 'books', function(books){
+				console.log('Retrieving Books: ', books);
+				$scope.books = books; 
+			});
+
 			$('#newnote').focus();
 		}
 	]);

@@ -12,43 +12,64 @@ angular.module( 'DB', [ 'Storage' ] )
 	.factory( 'DB', [ 'Storage', function( Storage ) {
 		var db = {};
 
-		db.get = function( key, def ){
-			return Storage.query( key ) || def;
+		db.get = function( key, def, callback ){
+			return Storage.query( key, callback, def );
 		}
 
-		db.query = function( name ){
-			list = db.get( name, { objects: [] } ).objects;
-			return list ? Storage.query( list ) : list;
+		db.query = function( name, callback ){
+			Storage.query( name, function(collection, extra){
+				var data = [];
+				var list = collection.objects;
+
+				if(list){
+					for( var i in list ){
+						data.push( JSON.parse(extra[list[i]].value) )
+					}
+				}
+
+				if(callback) callback(data);
+			}, { objects: [] } );
+			
+			return true;
 		}
 
-		db.save = function( name, object, key ){
+		db.save = function( name, object, key, callback ){
 			var old = object['id'] || false;
 			Storage.save( key, object );
 
 			// create
 			if( !old ){
-				var collection = db.get( name, { objects: [] } );
-				collection.objects.push( object.id );
-				Storage.save( name, collection );
+				Storage.query( name, function(collection){
+					console.log('Retrieving Collection: ', collection);
+					collection.objects.push( object.id );
+					Storage.save( name, collection, callback );
+				}, { objects: [] } );
+			}
+			else {
+				if(callback) callback(object);
 			}
 
 			// update 
 			return object;
 		}
 
-		db.remove = function( name, object ){
-			var collection = db.get( name, { objects: [] } );
-			collection.objects.splice(collection.objects.indexOf( object.id ), 1);
-			Storage.save( name, collection );
+		db.remove = function( name, object, callback ){
+			Storage.query( name, function(collection){
+					collection.objects.splice(collection.objects.indexOf( object.uuid ), 1);
+					
+					Storage.save( name, collection, function(collection){
+						Storage.remove( object.id, callback );
+					} );
+				}, { objects: [] } );
 
-			Storage.remove( object.id );
 			return true;
 		}
 
-		db.drop = function( name ){
-			var collection = db.get( name, { objects: [] } );
-			Storage.remove( collection.objects )
-			Storage.remove( name );
+		db.drop = function( name, callback ){
+			//var collection = db.get( name, { objects: [] } );
+			//Storage.remove( collection.objects );
+			
+			Storage.remove( name, callback );
 		}
 
 		db.clear = function(){
