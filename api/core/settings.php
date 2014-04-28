@@ -60,4 +60,3 @@
 	define( 'MEDIA_ROOT', ROOT. 'drive' .DIRECTORY_SEPARATOR );
 
 ?>
-

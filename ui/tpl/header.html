@@ -1,7 +1,7 @@
-<div style="border-bottom: solid 1px #ccc; background-color: #eee; margin-top: -1em; padding: 1em 0 0.5em; position: fixed; top:0; left:0; right:0;">
+<div style="border-bottom: solid 1px #ccc; background-color: #eee; border-top: solid 1px #555; padding: 0.1em 0 0.3em; position: fixed; top:0; left:0; right:0; z-index: 5;">
 	<div class="body row">
 		<div class="col-xs-10 no-padding">
-			<div class="h1 bold" ng-hide="onEdit" ng-click="onEdit=1">{{book.name}}</div>
+			<div class="h2 bold" ng-hide="onEdit" ng-click="onEdit=1">{{book.name}}</div>
 			<div ng-show="onEdit" style="padding: 1.1em 0 0.6em;">
 				<form ng-submit="DB.save( 'books', book ) && refresh()">
 					<input type="text" ng-model="book.name" class="form-control inline-block"/>
@@ -11,9 +11,9 @@
 			</div>
 			<!--<div class="h4">Easy Notes</div>-->
 		</div>
-		<div class="col-xs-1 no-padding">
+		<div class="no-padding" ng-class="{'col-xs-1':books.length,'col-xs-2':books.length}" ng-show="user">
 			<div class="pull-right dropdown">
-				<a data-toggle="dropdown" class="dropdown-toggle pointer inline-block" style="font-size: 1.5em; padding: 0.75em 0 0 0.5em; color: #bbb;">
+				<a data-toggle="dropdown" class="dropdown-toggle pointer inline-block" style="font-size: 1.5em; padding: 0.4em 0 0 0.5em; color: #bbb;">
 					<span class="glyphicon glyphicon-cog"></span>
 					<!--<div class="col-md-1 no-padding"><span class="caret"></span></div>-->
 				</a>
@@ -23,12 +23,14 @@
 					<!--<li class="divider"></li>
 					<li><a ng-click="export()">Export Data</a></li>
 					<li><a onclick="$('#upload-file').click()">Import Data</a><input id="upload-file" style="display: none;" type="file" ng-model="uploadfile" ng-change="import()"></li>-->
+					<li class="divider"></li>
+					<li><a ng-click="Session.logout()">Logout</a></li>
 				</ul>
 			</div>
 		</div>
-		<div class="col-xs-1 no-padding">
+		<div class="col-xs-1 no-padding" ng-show="books.length">
 			<div class="pull-right dropdown">
-				<a data-toggle="dropdown" class="dropdown-toggle pointer inline-block" style="font-size: 1.5em; padding: 0.75em 0 0 0.5em; color: #858585;">
+				<a data-toggle="dropdown" class="dropdown-toggle pointer inline-block" style="font-size: 1.5em; padding: 0.4em 0 0 0.5em; color: #858585;">
 					<span class="glyphicon glyphicon-align-justify"></span>
 					<!--<div class="col-md-1 no-padding"><span class="caret"></span></div>-->
 				</a>

@@ -1,6 +1,6 @@
 <div ng-include src="headerURL"></div>
 
-<div class='body' style="margin: 6em auto 8em;">
+<div class='body' style="margin: 4.5em auto 8em;">
 	<div style="margin: 1.5em 0;">
 		<form ng-submit="DB.save( 'book.'+ book.uuid +'.notes', newnote ) && notes.push(newnote) && (newnote={})">
 			<input type="text" class="form-control full" ng-model="newnote.data" id="newnote" placeholder="New Note" />
@@ -10,8 +10,8 @@
 	<div class="">
 		<table class="table">
 			<tbody>
-				<tr ng-repeat="note in notes | reverse">
-					<td style="width: 4em;">{{ $index+1 }} <a ng-click="DB.remove( 'book.'+ book.uuid +'.notes', note ) && notes.splice( notes.length - $index - 1, 1 )" class="pull-right"><span class="glyphicon glyphicon-remove"></span></a></td>
+				<tr ng-repeat="note in notes | reverse" class="hover-block">
+					<td style="width: 4em; color: #999;">{{ $index+1 }} <a ng-click="DB.remove( 'book.'+ book.uuid +'.notes', note ) && notes.splice( notes.length - $index - 1, 1 )" class="pull-right hover" style="margin-top: 0.1em;"><span class="glyphicon glyphicon-remove"></span></a></td>
 					<td>{{ note.data }}</td>
 				</tr>
 			</tbody>

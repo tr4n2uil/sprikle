@@ -96,6 +96,12 @@ body {
 .inline-block {
   display: inline-block;
 }
+.hover-block .hover {
+  display: none;
+}
+.hover-block:hover .hover {
+  display: inline-block;
+}
 @media all and (max-width: 340px) and (min-width: 320px) and (min-aspect-ratio: 4/3) {
   .body {
     width: 50%;

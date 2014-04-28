@@ -8,13 +8,18 @@
  *
 **/
 
-var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadingBar', 'Storage', 'DB'])
+var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadingBar', 'Storage', 'DB', 'Session'])
 
 	.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider){
 
 		$routeProvider
 			//.when('/', {templateUrl: 'ui/tpl/home.html', controller: "init"})
 			.when('/', {templateUrl: 'ui/tpl/storage.html', controller: 'book'})
+			.when('/login', {templateUrl: 'ui/tpl/login.html', 
+				controller: ['$scope', function($scope){
+					$scope.book = { name: "Login" };
+				}]
+			})
 			.when('/book/:id', {templateUrl: 'ui/tpl/storage.html', controller: 'book'});
 		
 		$httpProvider.defaults.headers.post['Content-Type'] = 'application/json';
@@ -31,12 +36,13 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 		};
 	})
 
-	.controller('init', ['$scope', '$timeout', '$location', '$route', 'Storage', 'DB',
-		function($scope, $timeout, $location, $route, Storage, DB) {
+	.controller('init', ['$scope', '$timeout', '$location', '$route', 'Storage', 'DB', 'Session',
+		function($scope, $timeout, $location, $route, Storage, DB, Session) {
 			$scope.minHeight=$(window).height()-3;
 			$scope.headerURL = 'ui/tpl/header.html';
 			$scope.footerURL = 'ui/tpl/footer.html';
 			$scope.DB = DB;
+			$scope.Session = Session;
 
 			$scope.log = function(data){
 				console.log(data);
@@ -46,6 +52,10 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 			$scope.refresh = function(){
 				$route.reload();
 				return true;
+			}
+
+			$scope.sessionCheck = function(){
+				DB.get()
 			}
 
 			$scope.newBook = function(){
@@ -83,27 +93,29 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 		}
 	])
 
-	.controller('book', ['$scope', 'DB', '$routeParams', 
-		function($scope, DB, $routeParams) {
-			DB.get( $routeParams.id || 'easy-notes', false, function(book){
-				$scope.book = book;
-				if( !$scope.book ){
-					$scope.book = { name: 'Easy Notes' };
-					DB.save( 'books', $scope.book, 'easy-notes' );
-				}
+	.controller('book', ['$scope', 'DB', '$routeParams', 'Session',
+		function($scope, DB, $routeParams, Session) {
+			Session.check(function(){
+				DB.get( $routeParams.id || 'easy-notes', false, function(book){
+					$scope.book = book;
+					if( !$scope.book ){
+						$scope.book = { name: 'Easy Notes' };
+						DB.save( 'books', $scope.book, 'easy-notes' );
+					}
 
-				DB.query( 'book.'+ $scope.book.uuid +'.notes', function(notes){
-					console.log('Retrieving Notes: ', notes);
-					$scope.notes = notes;
+					DB.query( 'book.'+ $scope.book.uuid +'.notes', function(notes){
+						//console.log('Retrieving Notes: ', notes);
+						$scope.notes = notes;
+					});
+				} );
+				
+				DB.query( 'books', function(books){
+					//console.log('Retrieving Books: ', books);
+					$scope.books = books; 
 				});
-			} );
-			
-			DB.query( 'books', function(books){
-				console.log('Retrieving Books: ', books);
-				$scope.books = books; 
-			});
 
-			$('#newnote').focus();
+				$('#newnote').focus();
+			});
 		}
 	]);
 
