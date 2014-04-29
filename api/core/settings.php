@@ -35,8 +35,8 @@
 	}
 	
 	define( 'LOGIN_URL', APP. 'login/' );
-	define( 'LOGIN_REDIRECT', APP );
-	define( 'LOGOUT_REDIRECT', APP );
+	define( 'LOGIN_REDIRECT', '/' );
+	define( 'LOGOUT_REDIRECT', '/' );
 
 	// db utility settings
 	foreach($ini['DB_UTILITY_SETTINGS'] as $key => $value ){

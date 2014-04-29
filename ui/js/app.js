@@ -60,14 +60,14 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 
 			$scope.newBook = function(){
 				var book = { name: 'Untitled Notes' };
-				DB.save( 'books', book, false, function(){
+				DB.save( 'user.'+ $scope.user.uuid +'.books', book, false, function(){
 					$location.path( '/book/' + book.uuid );
 				} );
 			}
 
 			$scope.deleteBook = function( book ){
 				DB.drop( 'book.'+ book.uuid +'.notes' );
-				DB.remove( 'books', book, function(){
+				DB.remove( 'user.'+ $scope.user.uuid +'.books', book, function(){
 					$location.path('/');
 				} );
 			}
@@ -100,7 +100,7 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 					$scope.book = book;
 					if( !$scope.book ){
 						$scope.book = { name: 'Easy Notes' };
-						DB.save( 'books', $scope.book, 'easy-notes' );
+						DB.save( 'user.'+ $scope.user.uuid +'.books', $scope.book, 'easy-notes' );
 					}
 
 					DB.query( 'book.'+ $scope.book.uuid +'.notes', function(notes){
@@ -109,7 +109,7 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 					});
 				} );
 				
-				DB.query( 'books', function(books){
+				DB.query( 'user.'+ $scope.user.uuid +'.books', function(books){
 					//console.log('Retrieving Books: ', books);
 					$scope.books = books; 
 				});

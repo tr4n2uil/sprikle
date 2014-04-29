@@ -13,7 +13,7 @@ $config = parse_ini_file( ROOT."/core/".CONF_INI.".conf.ini", true);
 return 
 	array(
 		"base_url" => HOST. APP. 'auth/', 
-
+		
 		"providers" => array ( 
 			// openid providers
 			"openid" => array (

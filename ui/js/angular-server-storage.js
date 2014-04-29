@@ -109,6 +109,7 @@ angular.module( 'Storage', ['REST'] )
 			reader.readAsText(file);
 		}*/
 
+		window.Storage = storage;
 		return storage;
 
 	}]);
