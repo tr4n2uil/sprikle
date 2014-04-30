@@ -18,7 +18,7 @@
 
 		// auth views
 		'/^auth$/i' => array( PR_ROOT. 'auth/endpoint.php' ),
-		'/^login\/?(?P<provider>[\w\-]+)?$/i' => array( 'tpl/login.php' ),
+		'/^login\/?(?P<provider>[\w\-]+)?$/i' => array( PR_ROOT. 'auth/login.php' ),
 		'/^logout$/i' => array( PR_ROOT. 'auth/logout.php' ),
 
 		// auth api

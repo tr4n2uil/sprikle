@@ -33,12 +33,12 @@ angular.module( 'DB', [ 'Storage' ] )
 			return true;
 		}
 
-		db.save = function( name, object, key, callback ){
+		db.save = function( name, object, key, callback, add ){
 			var old = object['id'] || false;
 			Storage.save( key, object );
 
 			// create
-			if( !old ){
+			if( !old || add ){
 				Storage.query( name, function(collection){
 					console.log('Retrieving Collection: ', collection);
 					collection.objects.push( object.id );
@@ -53,12 +53,17 @@ angular.module( 'DB', [ 'Storage' ] )
 			return object;
 		}
 
-		db.remove = function( name, object, callback ){
+		db.remove = function( name, object, callback, del ){
 			Storage.query( name, function(collection){
 					collection.objects.splice(collection.objects.indexOf( object.uuid ), 1);
 					
 					Storage.save( name, collection, function(collection){
-						Storage.remove( object.id, callback );
+						if(del){
+							Storage.remove( object.id, callback );	
+						}
+						else {
+							if(callback) callback(object);
+						}
 					} );
 				}, { objects: [] } );
 

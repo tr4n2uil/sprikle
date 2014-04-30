@@ -36,8 +36,8 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 		};
 	})
 
-	.controller('init', ['$scope', '$timeout', '$location', '$route', 'Storage', 'DB', 'Session',
-		function($scope, $timeout, $location, $route, Storage, DB, Session) {
+	.controller('init', ['$scope', '$rootScope', '$timeout', '$location', '$route', 'Storage', 'DB', 'Session',
+		function($scope, $rootScope, $timeout, $location, $route, Storage, DB, Session) {
 			$scope.minHeight=$(window).height()-3;
 			$scope.headerURL = 'ui/tpl/header.html';
 			$scope.footerURL = 'ui/tpl/footer.html';
@@ -58,18 +58,44 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 				DB.get()
 			}
 
+			$scope.processBooks = function(books){
+				$rootScope.books = books;
+				$rootScope.books_map = {};
+				for(var i in books){
+					$rootScope.books_map[books[i].id] = 1;
+				}
+			}
+
 			$scope.newBook = function(){
 				var book = { name: 'Untitled Notes' };
+				$rootScope.books = undefined;
+				
 				DB.save( 'user.'+ $scope.user.uuid +'.books', book, false, function(){
 					$location.path( '/book/' + book.uuid );
 				} );
 			}
 
 			$scope.deleteBook = function( book ){
-				DB.drop( 'book.'+ book.uuid +'.notes' );
+				if(book.owner == $scope.user.uuid){
+					DB.drop( 'book.'+ book.uuid +'.notes' );
+				}
+
 				DB.remove( 'user.'+ $scope.user.uuid +'.books', book, function(){
+					$rootScope.books = undefined;
 					$location.path('/');
-				} );
+				}, book.owner == $scope.user.uuid );
+			}
+
+			$scope.addBook = function(book){
+				if($rootScope.books_map[ book.id ] || false){ } else {
+					DB.save( 'user.'+ $scope.user.uuid +'.books', book, false, function(){
+						//$location.path( '/book/' + book.uuid );
+						DB.query( 'user.'+ $scope.user.uuid +'.books', function(books){
+							//console.log('Retrieving Books: ', books);
+							$scope.processBooks(books);
+						});
+					}, true );
+				}
 			}
 
 			$scope.export = function(){
@@ -93,8 +119,8 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 		}
 	])
 
-	.controller('book', ['$scope', 'DB', '$routeParams', 'Session',
-		function($scope, DB, $routeParams, Session) {
+	.controller('book', ['$scope', '$rootScope', 'DB', '$routeParams', 'Session',
+		function($scope, $rootScope, DB, $routeParams, Session) {
 			Session.check(function(){
 				DB.get( $routeParams.id || 'easy-notes', false, function(book){
 					$scope.book = book;
@@ -107,12 +133,19 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 						//console.log('Retrieving Notes: ', notes);
 						$scope.notes = notes;
 					});
+
+					if(!$rootScope.books){
+						DB.query( 'user.'+ $scope.user.uuid +'.books', function(books){
+							//console.log('Retrieving Books: ', books);
+							$scope.processBooks(books);
+							$scope.addBook(book);
+						});
+					}
+					else {
+						$scope.addBook(book);
+					}
+
 				} );
-				
-				DB.query( 'user.'+ $scope.user.uuid +'.books', function(books){
-					//console.log('Retrieving Books: ', books);
-					$scope.books = books; 
-				});
 
 				$('#newnote').focus();
 			});
