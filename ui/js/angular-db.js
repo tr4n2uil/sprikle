@@ -34,20 +34,24 @@ angular.module( 'DB', [ 'Storage' ] )
 		}
 
 		db.save = function( name, object, key, callback, add ){
+			var obj = object;
+			object = angular.copy(object);
 			var old = object['id'] || false;
-			Storage.save( key, object );
+			Storage.save( key, object, function(data){
+				obj.uuid = object.uuid;
 
-			// create
-			if( !old || add ){
-				Storage.query( name, function(collection){
-					console.log('Retrieving Collection: ', collection);
-					collection.objects.push( object.id );
-					Storage.save( name, collection, callback );
-				}, { objects: [] } );
-			}
-			else {
-				if(callback) callback(object);
-			}
+				// create
+				if( !old || add ){
+					Storage.query( name, function(collection){
+						console.log('Retrieving Collection: ', collection);
+						collection.objects.push( object.id );
+						Storage.save( name, collection, callback );
+					}, { objects: [] } );
+				}
+				else {
+					if(callback) callback(object);
+				}
+			} );
 
 			// update 
 			return object;

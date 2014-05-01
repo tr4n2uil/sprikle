@@ -1,0 +1,53 @@
+<div ng-include src="headerURL"></div>
+
+<div class='body' style="margin: 4.5em auto 8em;">
+	<div style="margin: 1em 0 2.5em;">
+		<form ng-submit="newdet.part.details.push({comment:newdet.comment, total:newdet.total, ctime: Date().toString().slice(0, 24)}); (newdet.part.done=newdet.part.done+Number(newdet.total)); (plan.done=plan.done+Number(newdet.total)); DB.save( 'user.'+ user.uuid +'.plans', plan, plan.id ); (newdet={})">
+			<select name="type" class="form-control pull-left" ng-model="newdet.part" ng-options="part.name for part in plan.particulars">
+				<option value="">Type</option>
+			</select>
+			<input type="text" class="form-control pull-left" ng-model="newdet.total" id="new" placeholder="Amount" />
+			<input type="text" class="form-control pull-left" ng-model="newdet.comment" placeholder="Comment" />
+			<button class="btn btn-danger"><span class="glyphicon glyphicon-plus"></span></button>
+		</form>
+	</div>
+
+	<table class="table table-bordered">
+		<h2>Summary</h2>
+		<thead><th>Total</th><th>Expense</th><th>Balance</th></thead>
+		<tbody>
+			<tr>
+				<td>{{plan.total}}</td><td>{{plan.done}}</td><td>{{plan.total - plan.done}}</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<div style="margin: 2em 0;" ng-repeat="part in plan.particulars">
+		<h2 class="hover-block">{{part.name}} <a ng-click="(plan.total=plan.total-Number(part.total)); (plan.done=plan.done-Number(part.done)); plan.particulars.splice( $index, 1 ); DB.save( 'user.'+ user.uuid +'.plans', plan, plan.id );" class="hover no-link" style="color: darkred; font-size: 0.75em;"> &nbsp; <span class="glyphicon glyphicon-minus"></span></a> <span class="pull-right">{{part.done?part.done:0}} <span class="dim">({{part.total}})</span></span></h2>
+		<div class="progress progress-striped">
+			<div class="progress-bar progress-bar-success" role="progressbar" style="width: {{Number(part.done)*100/(Number(part.total)+1)}}%">
+				<span class="sr-only"></span>
+			</div>
+		</div>
+		<table class="table">
+			<tbody>
+				<tr ng-repeat="d in part.details" class="hover-block">
+					<td style="width: 50%; color: #999;">{{d.ctime}} <a ng-click="(plan.done=plan.done-Number(d.total)); (part.done=part.done-Number(d.total)); part.details.splice( $index, 1 ); DB.save( 'user.'+ user.uuid +'.plans', plan, plan.id );" class="hover no-link" style="color: darkred; font-size: 0.75em;"> &nbsp; <span class="glyphicon glyphicon-minus"></span></a></td>
+					<td>{{ d.total }}</td>
+					<td>{{d.comment}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<div style="margin: 2.5em 0;">
+		<h2>Budget</h2>
+		<form ng-submit="(plan.total=plan.total+Number(newpart.total)) && plan.particulars.push({name:newpart.name, total:newpart.total, done:0, details:[]}) && DB.save( 'user.'+ user.uuid +'.plans', plan, plan.id ) && (newpart={})">
+			<input type="text" class="form-control pull-left" ng-model="newpart.name" id="newpart" placeholder="New Allowance" />
+			<input type="text" class="form-control pull-left" ng-model="newpart.total" placeholder="Maximum Limit" />
+			<button class="btn btn-success">Create</button>
+		</form>
+	</div>
+</div>
+
+<div ng-include src="footerURL"></div>

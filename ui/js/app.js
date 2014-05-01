@@ -20,7 +20,12 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 					$scope.book = { name: "Login" };
 				}]
 			})
-			.when('/book/:id', {templateUrl: 'ui/tpl/storage.html', controller: 'book'});
+
+			.when('/books/', {templateUrl: 'ui/tpl/storage.html', controller: 'book'})
+			.when('/book/:id', {templateUrl: 'ui/tpl/storage.html', controller: 'book'})
+
+			.when('/plans/', {templateUrl: 'ui/tpl/plan.html', controller: 'plan'})
+			.when('/plan/:id', {templateUrl: 'ui/tpl/plan.html', controller: 'plan'});
 		
 		$httpProvider.defaults.headers.post['Content-Type'] = 'application/json';
 		$httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
@@ -43,6 +48,8 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 			$scope.footerURL = 'ui/tpl/footer.html';
 			$scope.DB = DB;
 			$scope.Session = Session;
+			$scope.Number = Number;
+			$scope.Date = Date;
 
 			$scope.log = function(data){
 				console.log(data);
@@ -50,27 +57,37 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 			}
 
 			$scope.refresh = function(){
+				$rootScope.collections = undefined;
 				$route.reload();
 				return true;
 			}
 
-			$scope.sessionCheck = function(){
-				DB.get()
+			$scope.process = function(objects){
+				$rootScope.collections = objects.reverse();
+				$rootScope.collections__map = {};
+				for(var i in objects){
+					$rootScope.collections__map[objects[i].id] = 1;
+				}
 			}
 
-			$scope.processBooks = function(books){
-				$rootScope.books = books;
-				$rootScope.books_map = {};
-				for(var i in books){
-					$rootScope.books_map[books[i].id] = 1;
+			$scope.add = function(key, object){
+				if($rootScope.collections__map[ object.id ] || false){ } else {
+					DB.save( 'user.'+ $scope.user.uuid + '.' + key, object, false, function(){
+						//$location.path( '/book/' + book.uuid );
+						DB.query( 'user.'+ $scope.user.uuid + '.' + key, function(objects){
+							//console.log('Retrieving Books: ', books);
+							$scope.process(objects);
+						});
+					}, true );
 				}
 			}
 
 			$scope.newBook = function(){
-				var book = { name: 'Untitled Notes' };
-				$rootScope.books = undefined;
-				
+				var book = { name: 'Untitled Notes', owner: $scope.user };
+				$rootScope.collections = undefined;
+
 				DB.save( 'user.'+ $scope.user.uuid +'.books', book, false, function(){
+					//console.log(book);
 					$location.path( '/book/' + book.uuid );
 				} );
 			}
@@ -81,21 +98,26 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 				}
 
 				DB.remove( 'user.'+ $scope.user.uuid +'.books', book, function(){
-					$rootScope.books = undefined;
-					$location.path('/');
-				}, book.owner == $scope.user.uuid );
+					$rootScope.collections = undefined;
+					$location.path('/books/');
+				}, book.owner.uuid == $scope.user.uuid );
 			}
 
-			$scope.addBook = function(book){
-				if($rootScope.books_map[ book.id ] || false){ } else {
-					DB.save( 'user.'+ $scope.user.uuid +'.books', book, false, function(){
-						//$location.path( '/book/' + book.uuid );
-						DB.query( 'user.'+ $scope.user.uuid +'.books', function(books){
-							//console.log('Retrieving Books: ', books);
-							$scope.processBooks(books);
-						});
-					}, true );
-				}
+			$scope.newPlan = function(){
+				var plan = { name: 'Untitled Plan', owner: $scope.user, total: 0, done: 0, particulars: [] };
+				$rootScope.collections = undefined;
+
+				DB.save( 'user.'+ $scope.user.uuid +'.plans', plan, false, function(object){
+					//console.log(object);
+					$location.path( '/plan/' + plan.uuid );
+				} );
+			}
+
+			$scope.deletePlan = function( plan ){
+				DB.remove( 'user.'+ $scope.user.uuid +'.plans', plan, function(){
+					$rootScope.collections = undefined;
+					$location.path('/plans/');
+				}, plan.owner.uuid == $scope.user.uuid );
 			}
 
 			$scope.export = function(){
@@ -121,11 +143,19 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 
 	.controller('book', ['$scope', '$rootScope', 'DB', '$routeParams', 'Session',
 		function($scope, $rootScope, DB, $routeParams, Session) {
+			$rootScope.collections = $rootScope.entity!='book'?undefined:$rootScope.collections;
+			$rootScope.entity = 'book';
+			$scope.icon = 'book';
+			$scope.title = 'Books';
+			$scope.title_one = 'Book';
+			$scope.newObj = $scope.newBook;
+			$scope.deleteObj = $scope.deleteBook;
+
 			Session.check(function(){
 				DB.get( $routeParams.id || 'easy-notes', false, function(book){
-					$scope.book = book;
+					$scope.book = $scope.obj = book;
 					if( !$scope.book ){
-						$scope.book = { name: 'Easy Notes' };
+						$scope.book = $scope.obj = { name: 'Easy Notes' };
 						DB.save( 'user.'+ $scope.user.uuid +'.books', $scope.book, 'easy-notes' );
 					}
 
@@ -134,20 +164,56 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 						$scope.notes = notes;
 					});
 
-					if(!$rootScope.books){
+					if(!$rootScope.collections){
 						DB.query( 'user.'+ $scope.user.uuid +'.books', function(books){
 							//console.log('Retrieving Books: ', books);
-							$scope.processBooks(books);
-							$scope.addBook(book);
+							$scope.process(books);
+							$scope.add('books', book);
 						});
 					}
 					else {
-						$scope.addBook(book);
+						$scope.add('books', book);
 					}
 
 				} );
 
 				$('#newnote').focus();
+			});
+		}
+	])
+
+	.controller('plan', ['$scope', '$rootScope', 'DB', '$routeParams', 'Session',
+		function($scope, $rootScope, DB, $routeParams, Session) {
+			$rootScope.collections = $rootScope.entity!='plan'?undefined:$rootScope.collections;
+			$rootScope.entity = 'plan';
+			$scope.icon = 'usd';
+			$scope.title = 'Plans';
+			$scope.title_one = 'Plan';
+			$scope.newObj = $scope.newPlan;
+			$scope.deleteObj = $scope.deletePlan;
+
+			Session.check(function(){
+				DB.get( $routeParams.id || 'easy-plan', false, function(plan){
+					$scope.plan = $scope.obj = plan;
+					if( !$scope.plan ){
+						$scope.plan = $scope.obj = { name: 'Easy Plan', total: 0, done: 0, particulars: [] };
+						DB.save( 'user.'+ $scope.user.uuid +'.plans', $scope.plan, 'easy-plan' );
+					}
+
+					if(!$rootScope.collections){
+						DB.query( 'user.'+ $scope.user.uuid +'.plans', function(plans){
+							//console.log('Retrieving Books: ', books);
+							$scope.process(plans);
+							$scope.add('plans', plan);
+						});
+					}
+					else {
+						$scope.add('plans', plan);
+					}
+
+				} );
+
+				$('#new').focus();
 			});
 		}
 	]);

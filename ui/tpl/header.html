@@ -1,41 +1,55 @@
 <div style="border-bottom: solid 1px #ccc; background-color: #eee; border-top: solid 1px #555; padding: 0.1em 0 0.3em; position: fixed; top:0; left:0; right:0; z-index: 5;">
 	<div class="body row">
-		<div class="col-xs-10 no-padding">
-			<div class="h2 bold" ng-hide="onEdit" ng-click="onEdit=1">{{book.name}}</div>
-			<div ng-show="onEdit" style="padding: 1.1em 0 0.6em;">
-				<form ng-submit="DB.save( 'books', book ) && refresh()">
-					<input type="text" ng-model="book.name" class="form-control inline-block"/>
+		<div class="col-xs-1 no-padding" ng-show="collections.length">
+			<div class="dropdown">
+				<a data-toggle="dropdown" class="dropdown-toggle pointer inline-block" style="font-size: 1.5em; padding: 0.4em 0.5em 0 0; color: #bbb;" title="Collections">
+					<span class="glyphicon glyphicon-{{icon}}"></span>
+					<!--<div class="col-md-1 no-padding"><span class="caret"></span></div>-->
+				</a>
+				<ul class="dropdown-menu">
+					<li><a ng-href="#/books/">Books</a></li>
+					<li><a ng-href="#/plans/">Plans</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="col-xs-9 no-padding">
+			<div class="h2 bold" ng-hide="onEdit" ng-click="onEdit=1">{{obj.name}}</div>
+			<div ng-show="onEdit" style="padding: 0.4em 0 0.2em;">
+				<form ng-submit="DB.save( 'user.'+ user.uuid + '.' + entity + 's', obj, obj.id ); refresh()">
+					<input type="text" ng-model="obj.name" class="form-control inline-block"/>
 					<button class="btn btn-success">Save</button>
 					<button class="btn btn-default" type="button" ng-click="onEdit=0">Cancel</button>
 				</form>
 			</div>
 			<!--<div class="h4">Easy Notes</div>-->
 		</div>
-		<div class="no-padding" ng-class="{'col-xs-1':books.length,'col-xs-2':books.length}" ng-show="user">
+		<div class="col-xs-1 no-padding" ng-show="collections.length">
 			<div class="pull-right dropdown">
-				<a data-toggle="dropdown" class="dropdown-toggle pointer inline-block" style="font-size: 1.5em; padding: 0.4em 0 0 0.5em; color: #bbb;">
-					<span class="glyphicon glyphicon-cog"></span>
-					<!--<div class="col-md-1 no-padding"><span class="caret"></span></div>-->
-				</a>
-				<ul class="dropdown-menu">
-					<li><a ng-click="newBook()">New Book</a></li>
-					<li><a ng-click="deleteBook(book)">{{book.owner==user.uuid?"Delete":"Remove"}} Book</a></li>
-					<!--<li class="divider"></li>
-					<li><a ng-click="export()">Export Data</a></li>
-					<li><a onclick="$('#upload-file').click()">Import Data</a><input id="upload-file" style="display: none;" type="file" ng-model="uploadfile" ng-change="import()"></li>-->
-					<li class="divider"></li>
-					<li><a ng-click="Session.logout()">Logout</a></li>
-				</ul>
-			</div>
-		</div>
-		<div class="col-xs-1 no-padding" ng-show="books.length">
-			<div class="pull-right dropdown">
-				<a data-toggle="dropdown" class="dropdown-toggle pointer inline-block" style="font-size: 1.5em; padding: 0.4em 0 0 0.5em; color: #858585;">
+				<a data-toggle="dropdown" class="dropdown-toggle pointer inline-block" style="font-size: 1.5em; padding: 0.4em 0.5em 0 0.5em; color: #858585;" title="{{title}}">
 					<span class="glyphicon glyphicon-align-justify"></span>
 					<!--<div class="col-md-1 no-padding"><span class="caret"></span></div>-->
 				</a>
 				<ul class="dropdown-menu">
-					<li ng-repeat="b in books"><a ng-href="#/book/{{b.id}}/">{{b.name}}</a></li>
+					<li ng-repeat="b in collections"><a ng-href="#/{{entity}}/{{b.id}}/">{{b.name}}</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="no-padding" ng-class="{'col-xs-1':collections.length,'col-xs-2':collections.length}" ng-show="user">
+			<div class="pull-right dropdown">
+				<a data-toggle="dropdown" class="dropdown-toggle pointer inline-block" style="font-size: 1.5em; padding: 0.4em 0 0 0.5em; color: #bbb;" title="{{user.name}}">
+					<img class="img-circle" src="{{user.photo}}" ng-if="user.photo" style="margin-top: -0.35em; height: 1.4em;"/>
+					<span class="glyphicon glyphicon-cog" ng-if="!user.photo"></span>
+					<!--<div class="col-md-1 no-padding"><span class="caret"></span></div>-->
+				</a>
+				<ul class="dropdown-menu">
+					<li><a ng-click="newObj()">New {{title_one}}</a></li>
+					<li><a ng-click="deleteObj(obj)">{{obj.owner==user.uuid?"Delete":"Remove"}} {{title_one}}</a></li>
+					<!--<li class="divider"></li>
+					<li><a ng-click="export()">Export Data</a></li>
+					<li><a onclick="$('#upload-file').click()">Import Data</a><input id="upload-file" style="display: none;" type="file" ng-model="uploadfile" ng-change="import()"></li>-->
+					<li class="divider"></li>
+					<li><a ng-href="#/user/{{user.username}}/">Profile</a></li>
+					<li><a ng-click="Session.logout()">Logout</a></li>
 				</ul>
 			</div>
 		</div>
