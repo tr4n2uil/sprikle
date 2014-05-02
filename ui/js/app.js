@@ -17,7 +17,7 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 			.when('/', {templateUrl: 'ui/tpl/storage.html', controller: 'book'})
 			.when('/login', {templateUrl: 'ui/tpl/login.html', 
 				controller: ['$scope', function($scope){
-					$scope.book = { name: "Login" };
+					$scope.obj = { name: "Login" };
 				}]
 			})
 
