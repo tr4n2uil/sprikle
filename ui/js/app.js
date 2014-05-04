@@ -41,11 +41,46 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 		};
 	})
 
+	.directive('timeago', function($parse) {
+		return {
+	        restrict: "A",
+	        link: function(scope, element, attrs) {
+				var parsed = $parse(attrs.timeago);
+				var d = parsed(scope);
+				if(d){
+					element.text($.timeago(d));
+				}
+				else {
+					element.text("Long time before");
+				}
+			}
+		}
+	})
+
+	.directive('autogrow', function($parse) {
+		return {
+	        restrict: "A",
+	        link: function(scope, element, attrs) {
+	        	var f = function(e){
+	        		while($(this).get(0).scrollHeight > $(this).get(0).clientHeight){
+						var $rows = Number($(this).attr('rows') || 1);
+						$(this).attr('rows', $rows + 1);
+					}
+					return true;
+	        	}
+
+	        	element.bind('focus', f);
+	        	element.bind('keyup', f);
+			}
+		}
+	})
+
 	.controller('init', ['$scope', '$rootScope', '$timeout', '$location', '$route', 'Storage', 'DB', 'Session',
 		function($scope, $rootScope, $timeout, $location, $route, Storage, DB, Session) {
 			$scope.minHeight=$(window).height()-3;
 			$scope.headerURL = 'ui/tpl/header.html';
 			$scope.footerURL = 'ui/tpl/footer.html';
+			$scope.onEdit = {};
 			$scope.DB = DB;
 			$scope.Session = Session;
 			$scope.Number = Number;
@@ -80,6 +115,17 @@ var APP = angular.module('APP', ['ngRoute', 'ngSanitize', 'chieffancypants.loadi
 						});
 					}, true );
 				}
+			}
+
+			$scope.editNote = function(note, book){
+				note.ctime=Date().toString().slice(0, 24); 
+				DB.save( 'book.'+ book.uuid +'.notes', note ); 
+				$scope.onEdit[note.id]=0;
+			}
+
+			$scope.editMode = function(note){
+				$scope.onEdit[note.id]=1; 
+				$timeout(function(){ $('textarea#editnote-'+note.id).focus(); }, 100);
 			}
 
 			$scope.newBook = function(){

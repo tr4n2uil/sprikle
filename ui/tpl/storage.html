@@ -2,7 +2,7 @@
 
 <div class='body' style="margin: 4.5em auto 8em;">
 	<div style="margin: 1.5em 0;">
-		<form ng-submit="DB.save( 'book.'+ book.uuid +'.notes', newnote ) && notes.push(newnote) && (newnote={})">
+		<form ng-submit="newnote.owner=user; newnote.ctime=Date().toString().slice(0, 24); DB.save( 'book.'+ book.uuid +'.notes', newnote ); notes.push(newnote); (newnote={})">
 			<input type="text" class="form-control full" ng-model="newnote.data" id="newnote" placeholder="New Note" />
 		</form>
 	</div>
@@ -11,8 +11,20 @@
 		<table class="table">
 			<tbody>
 				<tr ng-repeat="note in notes | reverse" class="hover-block">
-					<td style="width: 4em; color: #999;">{{ $index+1 }} <a ng-click="DB.remove( 'book.'+ book.uuid +'.notes', note ) && notes.splice( notes.length - $index - 1, 1 )" class="pull-right hover" style="margin-top: 0.1em;"><span class="glyphicon glyphicon-remove"></span></a></td>
-					<td>{{ note.data }}</td>
+					<td style="width: 2.5em; color: #999;">{{ $index+1 }}</td>
+					<td>
+						<div ng-hide="onEdit[note.id]">
+							<div ng-click="editMode(note)">{{ note.data }}</div>
+							<div class="dim" style="font-size: 0.6em;"><span timeago="note.ctime" title="{{note.ctime}}">{{note.ctime}}</span><span ng-if="note.owner"> &nbsp;&middot;&nbsp; {{note.owner.name}}</span><span class="hover"> &nbsp;&nbsp; <a ng-click="DB.remove( 'book.'+ book.uuid +'.notes', note ) && notes.splice( notes.length - $index - 1, 1 )"><span class="glyphicon glyphicon-remove"></span></a></span></div>
+						</div>
+						<div ng-show="onEdit[note.id]">
+							<form ng-submit="editNote(note, book)">
+								<textarea ng-keyup="$event.keyCode == 13 && editNote(note, book)" class="form-control full" ng-model="note.data" placeholder="Edit Note" autogrow id="editnote-{{note.id}}">{{note.data}}</textarea>
+								<input type="submit" value="Save" class="btn btn-success btn-xs" />
+								<input type="reset" value="Cancel" ng-click="onEdit[note.id]=0" class="btn btn-default btn-xs" />
+							</form>
+						</div>
+					</td>
 				</tr>
 			</tbody>
 		</table>

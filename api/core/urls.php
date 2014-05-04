@@ -24,7 +24,7 @@
 		'/^v1\/user\/?(?P<id>[\d]+)?$/i' => array( PR_ROOT. 'rest.php', array( 'model' => 'User' )),
 		'/^v1\/session\/?(?P<id>[\w\.]+)?$/i' => array( PR_ROOT. 'rest.php', array( 'model' => 'Session' )),
 
-		// apps api
+		// jsondb api
 		'/^v1\/data\/?(?P<id>[\w\-\.]+)?$/i' => array( PR_ROOT. 'rest.php', array( 'model' => 'Map' )),
 
 		// file views
