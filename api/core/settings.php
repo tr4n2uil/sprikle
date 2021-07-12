@@ -45,12 +45,12 @@
 	
 	$DATABASES = array(
 		'default' => array( 
-			'dsn' => 'mysql:host='.DB_HOST.';port='.DB_PORT.';dbname='.DB_NAME,
+			'dsn' => DB_DSN,
 			'user' => DB_USER,
 			'pass' => DB_PASS,
 		),
 		'socket' => array(
-			'dsn' => 'mysql:unix_socket=/tmp/mysql.sock;dbname='.DB_NAME,
+			'dsn' => 'mysql:unix_socket=/tmp/mysql.sock;dbname=',
 			'user' => DB_USER,
 			'pass' => DB_PASS,
 		),

@@ -12,7 +12,7 @@
 
 	require_once( 'core/settings.php' );
 	require_once( 'core/urls.php' );
-
+	
 	require_once( PR_ROOT. 'controller.php' );
 
 ?>

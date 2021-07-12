@@ -10,7 +10,7 @@
 **/
 	require_once( PR_ROOT. 'auth/models.php' );
 	require_once( PR_ROOT. 'auth/session.php' );
-	require_once( PR_ROOT. 'jsondb.php' );
+	require_once( PR_ROOT. 'fsdb.php' );
 
 	$URLS = array(
 		'/^(apps|core|lib|tmp)/i' => array( 'tpl/test.php' ),
